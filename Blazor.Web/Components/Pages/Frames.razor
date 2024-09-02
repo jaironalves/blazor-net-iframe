@@ -1,0 +1,53 @@
+﻿@using Blazor.Web.Core.Services
+@using Blazor.Web.Core.Domain
+
+@page "/frames"
+@inject FrameService frameService
+@implements IFrameObserver
+
+<h3>Multiple frames with Conditional Column Colors</h3>
+
+<div class="container">
+    <div class="row">
+        @foreach (var frameScript in frameService.Frames)
+        {
+            <div class="col-md-4 col-sm-6 col-12 @GetColumnColorClass(frameScript.ClientCount)">
+                <FrameScript ScriptUrl="@frameScript.Url" />
+                <p>Clientes: @frameScript.ClientCount</p>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        frameService.Subscribe(this);
+    }
+
+    public void Update()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private string GetColumnColorClass(int clienteCount)
+    {
+        if (clienteCount == 0)
+        {
+            return "bg-danger"; // Vermelho
+        }
+        else if (clienteCount < 10)
+        {
+            return "bg-warning"; // Amarelo
+        }
+        else
+        {
+            return "bg-success"; // Verde
+        }
+    }
+
+    public void Dispose()
+    {
+        frameService.Unsubscribe(this);
+    }
+}

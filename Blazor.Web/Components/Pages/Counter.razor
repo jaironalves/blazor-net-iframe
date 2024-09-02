@@ -1,0 +1,42 @@
+﻿@page "/counter"
+@rendermode InteractiveServer
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+<p>Data/Hora: @datahoraatual</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+@code {
+    private int currentCount = 0;
+    private string datahoraatual;
+    private Timer timer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        datahoraatual = DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss");
+        await UpdateDateTimeAsync();
+    }   
+
+    private async Task UpdateDateTimeAsync()
+    {
+        while (true)
+        {
+            datahoraatual = DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss");
+            await InvokeAsync(StateHasChanged);
+            await Task.Delay(1000);
+        }
+    }
+
+    [Parameter]
+    public int IncrementAmount { get; set; } = 1;
+
+    private void IncrementCount()
+    {
+        currentCount += IncrementAmount;
+    }
+}

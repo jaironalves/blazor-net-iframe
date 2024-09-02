@@ -1,0 +1,52 @@
+﻿@using Microsoft.JSInterop
+
+@page "/frame"
+@inject IJSRuntime JS
+
+@rendermode InteractiveServer
+
+@inject ILogger<FrameScript> Logger
+
+@if (FrameSource != null)
+{
+    <iframe id="@FrameId"  src="@FrameSource" style="width:100%; height:500px;"></iframe>
+}
+
+<p>
+    <button @onclick="HandleClick">Log information (and trigger a render)</button>
+</p>
+
+@code {
+    //-- @rendermode InteractiveServer
+    [Parameter]
+    public string FrameId { get; set; } = Guid.NewGuid().ToString();
+
+    [Parameter]
+    public string ScriptUrl { get; set; }
+
+    private string FrameSource;
+
+    protected override void OnInitialized()
+    {
+        FrameSource = "/html/shared.html";
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        Logger.LogInformation("OnAfterRender: firstRender = {FirstRender}", firstRender);
+    }
+
+    private void HandleClick()
+    {
+        Logger.LogInformation("HandleClick called");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Console.WriteLine("OnAfterRenderAsync called for the first render.");
+            await JS.InvokeVoidAsync("InjectScriptSourceFrame", FrameId, ScriptUrl);
+        }
+    }
+}
